@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>GEARSROM // ЛИЧНЫЙ КАБИНЕТ</title>
+  <style>
+    :root{
+      --bg:#0d0f12; --panel:#12151a; --panel2:#101318; --line:#23262d;
+      --txt:#c8cdd6; --dim:#6b7280; --dim2:#4a5160; --head:#e6ebf2;
+      --red:#ff3b3b; --blue:#3a86ff; --green:#7cffb2; --amber:#ffd24a;
+      --sans:-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+      --mono:"Cascadia Mono",Consolas,"Courier New",monospace;
+    }
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      background:var(--bg); color:var(--txt); font-family:var(--mono);
+      margin:0; padding:0 24px 24px; line-height:1.55; font-size:14px;
+      -webkit-font-smoothing:antialiased;
+    }
+
+    /* ---- ХЕДЕР: бренд слева, лого справа ---- */
+    header{
+      position:relative; display:flex; align-items:center; justify-content:space-between;
+      gap:16px; padding:18px 0 14px; border-bottom:1px solid var(--line);
+      margin-bottom:22px;
+    }
+    header::before{ /* фирменная акцентная линия сверху */
+      content:""; position:absolute; left:-24px; right:-24px; top:0; height:2px;
+      background:linear-gradient(90deg,var(--red),#7a1414 60%,transparent);
+    }
+    .brand{ font-family:var(--sans); color:var(--red); font-weight:700;
+            letter-spacing:2px; font-size:15px; }
+    .brand small{ display:block; color:var(--dim); font-weight:400;
+                  letter-spacing:3px; font-size:10px; margin-top:3px; }
+    .logo{ height:114px; width:auto; object-fit:contain; display:block;
+           filter:drop-shadow(0 0 14px rgba(58,134,255,.18)); }
+
+    /* ---- ЭКРАН ВХОДА ---- */
+    .login-box{ max-width:430px; margin:34px auto 0; background:var(--panel);
+                border:1px solid var(--line); border-radius:10px; padding:26px;
+                box-shadow:0 18px 50px rgba(0,0,0,.45); }
+    .login-box h2{ font-family:var(--sans); margin:0 0 4px; color:var(--head);
+                   font-size:17px; letter-spacing:.5px; }
+    .login-box .sub{ color:var(--dim); font-size:12px; margin-bottom:18px; }
+    label{ display:block; color:#9aa3b2; font-family:var(--sans); font-size:11px;
+           letter-spacing:1px; margin:12px 0 5px; text-transform:uppercase; }
+    input{ width:100%; font-family:var(--mono); font-size:14px; background:#0c0e12;
+           color:var(--green); border:1px solid #2c313b; border-radius:6px; padding:10px 12px;
+           transition:border-color .15s, box-shadow .15s; }
+    input:focus{ outline:none; border-color:var(--blue);
+                 box-shadow:0 0 0 3px rgba(58,134,255,.18); }
+    button{ font-family:var(--sans); font-size:13px; font-weight:600; cursor:pointer;
+            background:#161a21; color:var(--txt); border:1px solid #2c313b;
+            padding:10px 16px; border-radius:6px; letter-spacing:.4px;
+            transition:background .15s, border-color .15s, transform .05s; }
+    button:hover{ background:#1d222b; border-color:var(--blue); }
+    button:active{ transform:translateY(1px); }
+    .enter{ width:100%; margin-top:18px; background:#10243a; border-color:#1d4e7a;
+            color:#cfe6ff; }
+    .enter:hover{ background:#163a5e; border-color:var(--blue); }
+    .err{ color:#ff5a5a; font-size:12px; margin-top:12px; min-height:16px;
+          font-family:var(--mono); }
+
+    /* ---- ПРОФИЛЬ ---- */
+    .card{ background:var(--panel); border:1px solid var(--line); border-radius:10px;
+           padding:20px 22px; box-shadow:0 10px 30px rgba(0,0,0,.3); }
+    .card h2{ font-family:var(--sans); margin:0 0 14px; color:var(--head);
+              font-size:18px; letter-spacing:.5px; display:flex; align-items:center; gap:10px; }
+    .card h2::after{ content:""; flex:1; height:1px; background:var(--line); }
+    .row{ display:flex; gap:10px; margin-bottom:6px; padding:3px 0; }
+    .row:hover{ background:rgba(255,255,255,.02); }
+    .k{ color:var(--dim); min-width:150px; font-family:var(--sans); font-size:12.5px;
+        letter-spacing:.3px; }
+    .v{ color:var(--txt); }
+    .actions{ margin-top:18px; display:flex; gap:10px; flex-wrap:wrap; }
+
+    .panel{ display:none; animation:fade .25s ease; }
+    .panel.active{ display:block; }
+    @keyframes fade{ from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:none;} }
+
+    /* ---- ПОЧТА ---- */
+    .inbox h3{ font-family:var(--sans); color:#9aa3b2; font-size:12px; letter-spacing:2px;
+               margin:0 0 12px; text-transform:uppercase; }
+    details{ background:var(--panel2); border:1px solid var(--line); border-radius:8px;
+             margin-bottom:9px; overflow:hidden; transition:border-color .15s; }
+    details[open]{ border-color:#2c3a4a; }
+    summary{ cursor:pointer; padding:13px 15px; list-style:none; color:var(--head);
+             display:flex; justify-content:space-between; align-items:center; gap:12px;
+             transition:background .12s; }
+    summary::-webkit-details-marker{ display:none; }
+    summary:hover{ background:#161a21; }
+    summary .left{ display:flex; flex-wrap:wrap; gap:4px 12px; align-items:baseline; min-width:0; }
+    summary .from{ font-family:var(--sans); color:var(--blue); font-weight:600; font-size:13px; }
+    summary .subj{ color:#9aa3b2; font-size:12.5px; }
+    summary .d{ color:var(--dim2); font-size:11px; font-family:var(--mono); }
+    .flag{ font-family:var(--sans); font-size:10px; font-weight:700; letter-spacing:.6px;
+           white-space:nowrap; padding:3px 9px; border-radius:20px; text-transform:uppercase; }
+    .flag.warn{ color:#ffb4b4; background:rgba(255,59,59,.14); border:1px solid rgba(255,59,59,.35); }
+    .flag.info{ color:#bcd6ff; background:rgba(58,134,255,.14); border:1px solid rgba(58,134,255,.35); }
+    .flag.sys { color:#aab2bf; background:rgba(120,130,145,.12); border:1px solid rgba(120,130,145,.3); }
+    .body{ padding:14px 16px; color:#aab2bf; white-space:pre-wrap; border-top:1px solid #1c2027;
+           font-size:13px; }
+    .body .sig{ color:var(--dim); margin-top:12px; font-style:italic; }
+
+    /* ---- БЛОКИРОВКА ---- */
+    .blockoverlay{ position:fixed; inset:0; background:#0a0000; display:none;
+                   align-items:center; justify-content:center; z-index:999; padding:20px; }
+    .blockoverlay.open{ display:flex; animation:fade .2s ease; }
+    .block-card{ background:#140606; border:1px solid #5a1414; border-radius:10px;
+                 max-width:560px; width:100%; padding:30px 26px; text-align:center;
+                 box-shadow:0 0 70px rgba(255,40,40,.28); }
+    .block-card .big{ font-family:var(--sans); color:var(--red); font-weight:800;
+                      font-size:19px; letter-spacing:1px; margin:0 0 10px; }
+    .block-card .mid{ color:#ffb4b4; font-size:14px; margin:0 0 16px; }
+    .block-card .small{ color:#7a4a4a; font-size:11px; margin:0; font-family:var(--mono); }
+
+    footer{ margin-top:26px; color:#3a3f48; font-size:11px; border-top:1px solid var(--line);
+            padding-top:12px; }
+    .warn{ color:var(--red); }
+
+    /* ---- скроллбар ---- */
+    ::-webkit-scrollbar{ width:10px; height:10px; }
+    ::-webkit-scrollbar-track{ background:#0c0e12; }
+    ::-webkit-scrollbar-thumb{ background:#262b34; border-radius:6px; border:2px solid #0c0e12; }
+    ::-webkit-scrollbar-thumb:hover{ background:#33405a; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand">GearsROM<small></small></div>
+    <img class="logo" src="logo_gearsrom.jpg" alt="GEARSROM">
+  </header>
+
+  <!-- ============ ЭКРАН 0: АВТОРИЗАЦИЯ ============ -->
+  <div id="login" class="panel active">
+    <div class="login-box">
+      <h2>ВХОД В ЛИЧНЫЙ КАБИНЕТ</h2>
+      <div class="sub">Требуется учётная запись сотрудника GearsROM.</div>
+
+      <label>Логин</label>
+      <input id="loginInput" type="text" autocomplete="off" spellcheck="false"
+             onkeydown="if(event.key==='Enter')tryLogin()">
+
+      <label>Пароль</label>
+      <input id="passInput" type="password" autocomplete="off" spellcheck="false"
+             onkeydown="if(event.key==='Enter')tryLogin()">
+
+      <button id="enterBtn" class="enter" onclick="tryLogin()">ВОЙТИ →</button>
+      <div id="loginErr" class="err"></div>
+    </div>
+  </div>
+
+  <!-- ============ ЭКРАН 1: КАБИНЕТ ============ -->
+  <div id="profile" class="panel">
+    <div class="card">
+      <h2>ЛИЧНЫЙ КАБИНЕТ</h2>
+      <div class="row"><span class="k">ФИО</span><span class="v">Элис Грасия</span></div>
+      <div class="row"><span class="k">Возраст</span><span class="v">32 года</span></div>
+      <div class="row"><span class="k">Пол</span><span class="v">Женский</span></div>
+      <div class="row"><span class="k">Должность</span><span class="v">Ведущий разработчик искусственного интеллекта</span></div>
+      <div class="row"><span class="k">Почта</span><span class="v">e.gracia@gearsrom.local</span></div>
+      <div class="row"><span class="k">Проекты в работе</span><span class="v">S45 «Помощник для бизнеса» (по заказу), NeuroCore, VitalSync</span></div>
+      <div class="actions">
+        <button onclick="showMail()">✉&nbsp; ОТКРЫТЬ ПОЧТУ</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ ЭКРАН 2: ПОЧТОВЫЙ ЯЩИК ============ -->
+  <div id="mail" class="panel">
+    <div class="actions" style="margin:0 0 14px;">
+      <button onclick="showProfile()">←&nbsp; НАЗАД В КАБИНЕТ</button>
+    </div>
+    <div class="inbox">
+      <h3>Входящие // 12</h3>
+
+      <details>
+        <summary>
+          <span class="left"><span class="from">Система контроля доступа</span><span class="subj">Изменение уровня допуска</span><span class="d">22 окт, 08:01</span></span>
+          <span class="flag sys">авто</span>
+        </summary>
+        <div class="body">Уведомление СКАД GearsROM.
+Ваш уровень допуска изменён: GR-3 → GR-2.
+Основание: приказ № 447-К от 21.10. Часть ресурсов сегментов S45 и NeuroCore стала недоступна для вашей учётной записи.
+При необходимости восстановления доступа подавайте заявку через непосредственного руководителя.<div class="sig">— Автоматическая рассылка. Не отвечать.</div></div>
+      </details>
+
+      <details>
+        <summary>
+          <span class="left"><span class="from">Селин, CEO</span><span class="subj">По результатам служебной проверки</span><span class="d">21 окт, 17:42</span></span>
+          <span class="flag warn">⚠ СБ</span>
+        </summary>
+        <div class="body">Грасия Э., настоящим уведомляю Вас о результатах служебной проверки, проведённой комиссией по допуску совместно с отделом безопасности.
+Установлено, что Вами неоднократно предпринимались несанкционированные попытки проверки устойчивости систем защиты корпоративного контура, в том числе в отношении сегмента S45, без согласования с владельцем проекта и СБ.
+По итогам проверки Вам объявлено дисциплинарное взыскание в виде выговора. Премия за отчётный квартал не начисляется в полном объёме. Ваш уровень допуска снижен до GR-2 приказом № 447-К. Вы отстраняетесь от работ по проекту S45 до завершения проверки.
+Предупреждаю: повторное выявление подобных действий будет квалифицировано как разглашение сведений, составляющих охраняемую тайну, и повлечёт расторжение трудового договора.<div class="sig">— Селин М., генеральный директор GearsROM Technologies</div></div>
+      </details>
+
+      <details>
+        <summary>
+          <span class="left"><span class="from">Камелия Андерсон</span><span class="subj">Передача доступов по S45</span><span class="d">20 окт, 11:15</span></span>
+          <span class="flag info">проект</span>
+        </summary>
+        <div class="body">Элис.
+Заказчик сдвигает сроки этапа калибровки. Прошу до конца пятницы передать мне полные доступы к модулям интерпретации и к логам последних прогонов по S45. Тестовый контур оставляю за собой — синхронизируемся по документам.
+Если есть вопросы по форме передачи — ко мне или в СБ, не тяни.
+К.<div class="sig">— К. Андерсон, ведущий разработчик ИИ</div></div>
+      </details>
+
+      <details>
+        <summary>
+          <span class="left"><span class="from">Служба безопасности</span><span class="subj">Инцидент доступа к сегменту S45</span><span class="d">19 окт, 14:30</span></span>
+          <span class="flag warn">⚠ СБ</span>
+        </summary>
+        <div class="body">Коллеги, информируем о закрытии инцидента ID-2291.
+Зафиксированы несанкционированные обращения к тестовому контуру сегмента S45 со стороны учётной записи e.gracia. Характер обращений — проактивная проверка границ защиты. Ущерб данным не причинён.
+Применены меры: снижение допуска, отстранение от сегмента, материалы переданы руководству для решения о дисциплинарном взыскании.
+Напоминаем: самостоятельное тестирование ИБ-контуров допускается только по письменному наряду СБ. Нарушение приравнивается к попытке несанкционированного доступа.<div class="sig">— Отдел безопасности, GearsROM Technologies</div></div>
+      </details>
+
+      <details>
+        <summary>
+          <span class="left"><span class="from">Календарь (авто)</span><span class="subj">Совещание — статус S45, этап калибровки</span><span class="d">18 окт, 09:00</span></span>
+          <span class="flag info">календарь</span>
+        </summary>
+        <div class="body">Напоминание: совещание по проекту S45.
+Дата/время: 24.10, 10:00. Место: переговорная «Омега», 4 этаж.
+Повестка: доклад по метрикам отклика испытуемых; сроки этапа калибровки; распределение ответственности по модулям после изменения владельца проекта.
+Явка руководителей направлений и ответственных разработчиков обязательна. Материалы присылать за сутки до встречи.<div class="sig">— Автоматическое приглашение. Отменить.</div></div>
+      </details>
+
+      <details>
+        <summary>
+          <span class="left"><span class="from">ИТ-служба / HelpDesk</span><span class="subj">Истечение срока действия пароля</span><span class="d">17 окт, 06:00</span></span>
+          <span class="flag sys">авто</span>
+        </summary>
+        <div class="body">Уважаемый сотрудник!
+Срок действия Вашего пароля учётной записи e.gracia@gearsrom.local истекает через 5 дней.
+Во избежание блокировки выполните смену пароля в личном кабинете СКАД. Требования: не менее 12 символов, буквы верхнего и нижнего регистра, цифры, спецсимволы; пароль не должен совпадать с 5 предыдущими.
+При проблемах — тикет в HelpDesk, внутренний 2210.<div class="sig">— ИТ-служба GearsROM. Автоматическое уведомление.</div></div>
+      </details>
+
+      <details>
+        <summary>
+          <span class="left"><span class="from">Корпоративное обучение (LMS)</span><span class="subj">Назначен обязательный курс</span><span class="d">16 окт, 10:20</span></span>
+          <span class="flag sys">обучение</span>
+        </summary>
+        <div class="body">Вам назначен обязательный курс: «Информационная безопасность и работа с охраняемыми сведениями», ред. 2026.1.
+Срок прохождения: до 05.11. По окончании — тест, 2 попытки. Непрохождение в срок фиксируется как нарушение внутреннего регламента и влияет на премирование.
+Доступ: LMS → Мои курсы. По вопросам допуска к материалам сегмента S45 обращайтесь в СБ.<div class="sig">— Отдел развития персонала.</div></div>
+      </details>
+
+      <details>
+        <summary>
+          <span class="left"><span class="from">Отдел кадров (HR)</span><span class="subj">Обновление Политики обработки персональных данных</span><span class="d">15 окт, 12:00</span></span>
+          <span class="flag sys">HR</span>
+        </summary>
+        <div class="body">Коллеги, уведомляем об утверждении новой редакции Политики обработки персональных данных и служебной информации (приказ № 431-К).
+Просим ознакомиться с текстом в разделе «Документы» личного кабинета и подтвердить ознакомление электронной подписью до 30.10. Подтверждение обязательно для всех сотрудников с допуском GR-2 и выше.
+Изменения касаются порядка хранения логов взаимодействия с внутренними системами.<div class="sig">— HR-департамент GearsROM.</div></div>
+      </details>
+
+      <details>
+        <summary>
+          <span class="left"><span class="from">Бухгалтерия</span><span class="subj">Выплата заработной платы за сентябрь</span><span class="d">14 окт, 09:30</span></span>
+          <span class="flag sys">финансы</span>
+        </summary>
+        <div class="body">Уважаемая Элис!
+Сообщаем, что заработная плата за сентябрь перечислена на расчётный счёт, указанный в заявлении, 10.10. Справка о доходах доступна в разделе «Финансы» личного кабинета.
+Обращаем внимание: квартальная премия по результатам отчётного периода начисляется по итогу оценки и может быть скорректирована решением комиссии. Детали — у непосредственного руководителя.<div class="sig">— Бухгалтерия GearsROM Technologies.</div></div>
+      </details>
+
+      <details>
+        <summary>
+          <span class="left"><span class="from">GearsROM Internal (рассылка)</span><span class="subj">Итоги квартала и 12 000 пациентов NeuroCore</span><span class="d">13 окт, 08:00</span></span>
+          <span class="flag info">компания</span>
+        </summary>
+        <div class="body">Команда, с гордостью делимся итогами квартала!
+Платформа NeuroCore помогла вернуть мобильность 12 000 пациентам по всему миру, а VitalSync сократил время ранней диагностики на 31%. Мы близки к цели, ради которой начинали: технологии, которые возвращают людям жизнь и убирают боль там, где медицина была бессильна.
+Спасибо каждому инженеру, врачу-партнёру и сотруднику, кто делает это возможным. Впереди — новые горизонты. BUILD · OPTIMIZE · GO FURTHER.<div class="sig">— Пресс-служба GearsROM Technologies.</div></div>
+      </details>
+
+      <details>
+        <summary>
+          <span class="left"><span class="from">Сервис переговорных</span><span class="subj">Бронь «Омега» подтверждена</span><span class="d">12 окт, 15:45</span></span>
+          <span class="flag sys">office</span>
+        </summary>
+        <div class="body">Ваша бронь переговорной «Омега» (4 этаж) на 24.10, 10:00–11:30 подтверждена.
+Напоминание: после совещаний оставляйте помещение в рабочем состоянии; документы с грифом не оставлять на столах. Обнаруженные в переговорных носители с пометкой сегмента S45 передаются в СБ без обсуждения.<div class="sig">— Сервис управления помещениями.</div></div>
+      </details>
+
+      <details>
+        <summary>
+          <span class="left"><span class="from">Дэниал</span><span class="subj">Отчёт</span><span class="d">11 окт, 16:05</span></span>
+          <span class="flag info">друг</span>
+        </summary>
+        <div class="body">Наступило время еженедельного отчёта.
+А так же я бы хотел обсудить следующий проект.
+Широкий охват это конечно хорошо, но мне кажется, что тебе нужно меньше работать в этом направлении. Лучше сфокусируйся на запросе заказчика. Иначе снова будем слушать лекции от начальника. Так же направили инструкции.
+Админы сказали, что в связи с изменениями в системе безопасности могут возникать сбои.
+Документы с подробным описанием изменений найдёшь у меня в кабинете на столе.
+Очень прошу в этот раз не забудь расписаться в списке ознакомления.
+Конечно же я понимаю, что ты торопишься и всё такое, но это важно.
+И базы данных о которых ты просила. Заказчик сказал, что их направят тебе в конце недели для изменений. Справишься одна?
+
+P.S. Если что — ты знаешь, к кому идти. Подпись old friend.<div class="sig">— Дэниал</div></div>
+      </details>
+
+    </div>
+  </div>
+
+  <!-- ============ БЛОКИРОВКА ============ -->
+  <div id="blockOverlay" class="blockoverlay">
+    <div class="block-card">
+      <p class="big">ОБНАРУЖЕН НЕСАНКЦИОНИРОВАННЫЙ ДОСТУП!</p>
+      <p class="mid">Логин с неизвестного устройства</p>
+      <p class="small">Учётная запись заблокирована. Обратитесь в отдел безопасности GearsROM.</p>
+    </div>
+  </div>
+
+
+  <script>
+    function showPanel(id) {
+      var panels = document.querySelectorAll('.panel');
+      for (var i = 0; i < panels.length; i++) panels[i].classList.remove('active');
+      document.getElementById(id).classList.add('active');
+    }
+    function showMail()    { showPanel('mail'); }
+    function showProfile() { showPanel('profile'); }
+
+    // ---- счётчик взаимодействий (невидимый для игрока) ----
+    var LIMIT = 30;          // ДЛЯ РЕЛИЗА ПОМЕНЯЙ НА 25
+    var clicks = 0;
+    var armed  = false;      // счётчик включается только ПОСЛЕ входа в кабинет
+
+    document.addEventListener('click', function (e) {
+      if (!armed) return;
+      if (e.target && e.target.id === 'enterBtn') return; // сам вход не считаем
+      clicks++;
+      if (clicks >= LIMIT) block();
+    });
+
+    function block() {
+      armed = false;
+      document.getElementById('blockOverlay').classList.add('open');
+    }
+
+    // ---- проверка входа ----
+    var _fails = 0;
+    function tryLogin() {
+      var login = document.getElementById('loginInput').value.trim().toLowerCase();
+      var pass  = document.getElementById('passInput').value.trim();
+      var err   = document.getElementById('loginErr');
+
+      var loginOk = login.indexOf('gracia') >= 0;
+      var passOk  = (pass === '-xHqC&NmA2');   // точное совпадение, регистр и символы важны
+
+      if (loginOk && passOk) {
+        _fails = 0;
+        err.textContent = '';
+        document.getElementById('passInput').value = '';
+        armed  = true;
+        clicks = 0;
+        showPanel('profile');
+      } else {
+        _fails++;
+        err.textContent = 'НЕВЕРНЫЕ ДАННЫЕ. ПОПЫТКА #' + _fails + ' ЗАФИКСИРОВАНА СБ.';
+      }
+    }
+  </script>
+
+</body>
+</html>
