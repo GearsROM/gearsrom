@@ -322,6 +322,39 @@ P.S. Если что — ты знаешь, к кому идти. Подпись
 
 
   <script>
+    // ===== ПЕРСИСТЕНТНОСТЬ СЛЕЖКИ: состояние живёт в браузере игрока =====
+    // Серверу (GitHub Pages) перезагрузка не нужна — каждый игрок носит
+    // свою «заблокированную учётку» с собой в localStorage.
+    var KEY_CLICKS  = 'gr_clicks';
+    var KEY_BLOCKED = 'gr_blocked';
+
+    // Секретный сброс ДЛЯ ТЕСТА: ?fresh=1 в адресе. Игрокам НЕ говорить.
+    if (location.search.indexOf('fresh=1') >= 0) {
+      try { localStorage.removeItem(KEY_CLICKS); localStorage.removeItem(KEY_BLOCKED); } catch (e) {}
+      history.replaceState(null, '', location.pathname);
+    }
+
+    function loadState() {
+      try {
+        return {
+          clicks:  parseInt(localStorage.getItem(KEY_CLICKS)  || '0', 10) || 0,
+          blocked: localStorage.getItem(KEY_BLOCKED) === '1'
+        };
+      } catch (e) { return { clicks: 0, blocked: false }; }
+    }
+    function saveClicks(n) { try { localStorage.setItem(KEY_CLICKS, String(n)); } catch (e) {} }
+    function saveBlocked() { try { localStorage.setItem(KEY_BLOCKED, '1'); } catch (e) {} }
+
+    var st     = loadState();
+    var clicks = st.clicks;     // восстанавливаем накопленное (слежка помнит)
+    var armed  = false;
+
+    // Если уже заблокирован — блок СРАЗУ, до всякого входа. Обновление не спасает.
+    if (st.blocked) {
+      document.getElementById('blockOverlay').classList.add('open');
+    }
+
+    // ===== переключение экранов =====
     function showPanel(id) {
       var panels = document.querySelectorAll('.panel');
       for (var i = 0; i < panels.length; i++) panels[i].classList.remove('active');
@@ -330,39 +363,38 @@ P.S. Если что — ты знаешь, к кому идти. Подпись
     function showMail()    { showPanel('mail'); }
     function showProfile() { showPanel('profile'); }
 
-    // ---- счётчик взаимодействий (невидимый для игрока) ----
+    // ===== счётчик взаимодействий (невидимый для игрока) =====
     var LIMIT = 30;          // ДЛЯ РЕЛИЗА ПОМЕНЯЙ НА 25
-    var clicks = 0;
-    var armed  = false;      // счётчик включается только ПОСЛЕ входа в кабинет
 
     document.addEventListener('click', function (e) {
       if (!armed) return;
-      if (e.target && e.target.id === 'enterBtn') return; // сам вход не считаем
+      if (e.target && e.target.id === 'enterBtn') return;   // сам вход не считаем
       clicks++;
+      saveClicks(clicks);
       if (clicks >= LIMIT) block();
     });
 
     function block() {
       armed = false;
+      st.blocked = true;
+      saveBlocked();            // запоминаем навсегда (до ?fresh=1 / очистки кэша)
       document.getElementById('blockOverlay').classList.add('open');
     }
 
-    // ---- проверка входа ----
+    // ===== вход =====
     var _fails = 0;
     function tryLogin() {
+      if (st.blocked) return;   // заблокированному вход не поможет (двойная защита)
       var login = document.getElementById('loginInput').value.trim().toLowerCase();
       var pass  = document.getElementById('passInput').value.trim();
       var err   = document.getElementById('loginErr');
-
       var loginOk = login.indexOf('gracia') >= 0;
       var passOk  = (pass === '-xHqC&NmA2');   // точное совпадение, регистр и символы важны
-
       if (loginOk && passOk) {
         _fails = 0;
         err.textContent = '';
         document.getElementById('passInput').value = '';
-        armed  = true;
-        clicks = 0;
+        armed = true;           // клики считаем; clicks НЕ обнуляем — память слежки
         showPanel('profile');
       } else {
         _fails++;
